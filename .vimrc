@@ -127,3 +127,63 @@ vnoremap { <esc>`>a}<esc>`<i{<esc>
 vnoremap } <esc>`>a}<esc>`<i{<esc>
 vnoremap [ <esc>`>a]<esc>`<i[<esc>
 vnoremap ] <esc>`>a]<esc>`<i[<esc>
+vnoremap < <esc>`>a><esc>`<i<<esc>
+vnoremap > <esc>`>a><esc>`<i<<esc>
+vnoremap " <esc>`>a"<esc>`<i"<esc>
+vnoremap ' <esc>`>a'<esc>`<i'<esc>
+
+func! ClosePair(char)
+	if getline('.')[col('.') - 1] == a:char
+		return "\<right>"
+	else
+		return a:char
+	endif
+endfunc
+
+func! QuoteDelim(char)
+	let line = getline('.')
+	let col = col('.')
+	if line[col - 2] == "\\"
+		return a:char
+	elseif line[col - 1] == a:char
+		return "\<right>"
+	else
+		return a:char.a:char."\<left>"
+	endif
+endfunc
+
+func! DeleteEmptyPair()
+	if InAnEmptyPair()
+		return "\<left>\<del>\<del>"
+	else
+		return "\<bs>"
+	endif
+endfunc
+
+func! InAnEmptyPair()
+	let cur = strpart(getline('.'),getpos('.')[2]-2,2)
+	for pair in (split(&matchpairs,',') + ['":"',"':'"])
+		if cur == join(split(pair,':'),'')
+			return 1
+		endif
+	endfor
+	return 0
+endfunc
+
+"-------------------------------------------------------------------------------
+" IV. AUTOCOMMAND
+"-------------------------------------------------------------------------------
+autocmd FileType cpp nnoremap <buffer> <space> :e %:t:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<cr>
+autocmd FileType cpp nnoremap <buffer> <localleader>sp :sp %:t:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<cr>
+autocmd FileType cpp nnoremap <buffer> <localleader>vsp :vsp %:t:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<cr>
+
+autocmd FileType cpp inoremap <buffer> { {}<esc>i<cr><esc>O
+
+autocmd FileType cpp setlocal textwidth=80
+autocmd FileType cpp setlocal cc=80
+
+" Set default size
+set guifont=Monospace\ Bold\ 18
+
+" Set default color theme
+colorscheme monokai
